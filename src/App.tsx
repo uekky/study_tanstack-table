@@ -4,6 +4,7 @@ import {
   useReactTable,
   getFilteredRowModel,
   ColumnFiltersState,
+  FilterFn,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
@@ -18,6 +19,7 @@ function App() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   useEffect(() => {
     const getPosts = async () => {
@@ -50,15 +52,35 @@ function App() {
     },
   ];
 
+  // カスタムフィルター関数を定義
+  const fuzzyFilter: FilterFn<any> = (row, columnId, filterValue: string) => {
+    // フィルター値が空の場合はすべての行を表示
+    if (!filterValue) return true;
+
+    const searchValue = filterValue.toLowerCase();
+    // titleとbodyの両方の値を取得
+    const title = row.getValue("title")?.toString().toLowerCase() || "";
+    const body = row.getValue("body")?.toString().toLowerCase() || "";
+
+    // どちらかに検索文字列が含まれていればtrue
+    return title.includes(searchValue) || body.includes(searchValue);
+  };
+
   const table = useReactTable({
     data: posts,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
-      columnFilters,
+      globalFilter,
     },
-    onColumnFiltersChange: setColumnFilters,
+    // カスタムフィルター関数を設定
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    // globalFilterの変更ハンドラを設定
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
   });
 
   return (
@@ -67,10 +89,11 @@ function App() {
       <input
         type="text"
         placeholder="Search by title"
-        value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-        onChange={(e) =>
-          table.getColumn("title")?.setFilterValue(e.target.value)
-        }
+        value={globalFilter}
+        onChange={(e) => {
+          // グローバルフィルターを更新
+          setGlobalFilter(e.target.value);
+        }}
       />
       <table>
         <thead>

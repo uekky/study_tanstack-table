@@ -28,8 +28,16 @@ function App() {
     getPosts();
   }, []);
 
+  const updateRow = (id: number) => {
+    console.log('update', id);
+  };
+  
+  const deleteRow = (id: number) => {
+    console.log('delete', id);
+  };
+  
   const columnHelper = createColumnHelper<Post>();
-
+  
   const columns = [
     columnHelper.accessor((row) => `${row.userId} ${row.id}`, {
       id: 'WID',
@@ -40,6 +48,20 @@ function App() {
     }),
     columnHelper.accessor('body', {
       header: () => 'Body',
+    }),
+    columnHelper.display({
+      id: 'update',
+      header: '更新',
+      cell: (props) => (
+        <button onClick={() => updateRow(props.row.original.id)}>更新</button>
+      ),
+    }),
+    columnHelper.display({
+      id: 'delete',
+      header: () => '削除',
+      cell: (props) => (
+        <button onClick={() => deleteRow(props.row.original.id)}>削除</button>
+      ),
     }),
   ];
 

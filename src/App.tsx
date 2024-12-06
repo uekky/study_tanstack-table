@@ -3,7 +3,7 @@ import {
   useReactTable, 
   getCoreRowModel,
   flexRender,
-  CoreCell
+  createColumnHelper
 } from '@tanstack/react-table';
 
 type Post = {
@@ -28,24 +28,22 @@ function App() {
     getPosts();
   }, []);
 
+  const columnHelper = createColumnHelper<Post>();
+
   const columns = [
-    {
-      accessorKey: 'userId',
-      header: () => 'User ID',
-    },
-    {
-      accessorKey: 'id',
-      header: () => <h1>ID</h1>,
-    },
-    {
-      accessorKey: 'title',
+    columnHelper.accessor('userId', {
+      header: 'User ID',
+    }),
+    columnHelper.accessor('id', {
+      header: () => 'ID',
+    }),
+    columnHelper.accessor('title', {
       header: 'Title',
-      cell: (props: CoreCell<Post, string>) => props.getValue().toUpperCase(),
-    },
-    {
-      accessorKey: 'body',
-      header: 'Body',
-    },
+      cell: (props) => props.getValue().toUpperCase(),
+    }),
+    columnHelper.accessor('body', {
+      header: () => 'Body',
+    }),
   ];
 
   const table = useReactTable({

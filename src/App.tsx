@@ -30,15 +30,19 @@ function App() {
   const columns = [
     {
       accessorKey: 'userId',
+      header: () => 'User ID',
     },
     {
       accessorKey: 'id',
+      header: () => <h1>ID</h1>,
     },
     {
       accessorKey: 'title',
+      header: 'Title',
     },
     {
       accessorKey: 'body',
+      header: 'Body',
     },
   ];
 

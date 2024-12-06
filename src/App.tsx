@@ -31,11 +31,8 @@ function App() {
   const columnHelper = createColumnHelper<Post>();
 
   const columns = [
-    columnHelper.accessor('userId', {
-      header: 'User ID',
-    }),
-    columnHelper.accessor('id', {
-      header: () => 'ID',
+    columnHelper.accessor((row) => `${row.userId} ${row.id}`, {
+      id: 'WID',
     }),
     columnHelper.accessor('title', {
       header: 'Title',

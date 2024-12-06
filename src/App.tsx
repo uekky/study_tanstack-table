@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { 
   useReactTable, 
   getCoreRowModel,
-  flexRender
+  flexRender,
+  CoreCell
 } from '@tanstack/react-table';
 
 type Post = {
@@ -25,7 +26,7 @@ function App() {
     };
 
     getPosts();
-  });
+  }, []);
 
   const columns = [
     {
@@ -39,6 +40,7 @@ function App() {
     {
       accessorKey: 'title',
       header: 'Title',
+      cell: (props: CoreCell<Post, string>) => props.getValue().toUpperCase(),
     },
     {
       accessorKey: 'body',

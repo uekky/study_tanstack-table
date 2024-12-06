@@ -2,7 +2,8 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getSortedRowModel,
+  getFilteredRowModel,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
@@ -15,6 +16,8 @@ type Post = {
 
 function App() {
   const [posts, setPosts] = useState<Post[]>([]);
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   useEffect(() => {
     const getPosts = async () => {
@@ -40,7 +43,6 @@ function App() {
     {
       accessorKey: "title",
       header: "Title",
-      enableSorting: false,
     },
     {
       accessorKey: "body",
@@ -52,29 +54,34 @@ function App() {
     data: posts,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      columnFilters,
+    },
+    onColumnFiltersChange: setColumnFilters,
   });
 
   return (
     <div style={{ margin: "2em" }}>
       <h1>Posts List</h1>
+      <input
+        type="text"
+        placeholder="Search by title"
+        value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+        onChange={(e) =>
+          table.getColumn("title")?.setFilterValue(e.target.value)
+        }
+      />
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  onClick={header.column.getToggleSortingHandler()}
-                >
+                <th key={header.id}>
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}
-                  {{
-                    asc: " 🔼",
-                    desc: " 🔽",
-                  }[header.column.getIsSorted() as string] ?? null}
                 </th>
               ))}
             </tr>

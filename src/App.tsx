@@ -2,7 +2,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getPaginationRowModel,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
@@ -15,7 +15,6 @@ type Post = {
 
 function App() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [pageSize, setPageSize] = useState<number>(30);
 
   useEffect(() => {
     const getPosts = async () => {
@@ -41,6 +40,7 @@ function App() {
     {
       accessorKey: "title",
       header: "Title",
+      enableSorting: false,
     },
     {
       accessorKey: "body",
@@ -52,77 +52,29 @@ function App() {
     data: posts,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 30,
-      },
-    },
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
     <div style={{ margin: "2em" }}>
       <h1>Posts List</h1>
-      <div style={{ marginBottom: "1em" }}>
-        <div>Page Size</div>
-        <select
-          value={pageSize}
-          onChange={(e) => {
-            table.setPageSize(parseInt(e.target.value));
-            setPageSize(parseInt(e.target.value));
-          }}
-        >
-          <option value={10}>10</option>
-          <option value={30}>30</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-        </select>
-      </div>
-      <div style={{ display: "flex", marginBottom: "1em" }}>
-        <button
-          disabled={!table.getCanPreviousPage()}
-          onClick={() => table.previousPage()}
-        >
-          Privious
-        </button>
-        {Array.from({ length: table.getPageCount() }, (_, i) => i).map(
-          (index) => (
-            <div
-              key={index}
-              style={{
-                backgroundColor:
-                  table.getState().pagination.pageIndex === index ? "blue" : "",
-                color:
-                  table.getState().pagination.pageIndex === index
-                    ? "white"
-                    : "black",
-                padding: "0 0.5em 0 0.5em",
-                margin: "0 0.2em 0 0.2em",
-                cursor: "pointer",
-              }}
-              onClick={() => table.setPageIndex(index)}
-            >
-              {index + 1}
-            </div>
-          )
-        )}
-        <button
-          disabled={!table.getCanNextPage()}
-          onClick={() => table.nextPage()}
-        >
-          Next
-        </button>
-      </div>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id}>
+                <th
+                  key={header.id}
+                  onClick={header.column.getToggleSortingHandler()}
+                >
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}
+                  {{
+                    asc: " 🔼",
+                    desc: " 🔽",
+                  }[header.column.getIsSorted() as string] ?? null}
                 </th>
               ))}
             </tr>
